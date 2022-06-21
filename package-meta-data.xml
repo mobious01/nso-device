@@ -1,7 +1,7 @@
 <ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
   <name>device</name>
   <package-version>1.0</package-version>
-  <description>Generated Python package</description>
+  <description></description>
   <ncs-min-version>5.5</ncs-min-version>
 
   <component>

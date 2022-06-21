@@ -1,49 +1,147 @@
 module device {
+    namespace "https://github.com/mobious01/nso-device";
+    prefix device;
 
-  namespace "http://example.com/device";
-  prefix device;
-
-  import ietf-inet-types {
-    prefix inet;
-  }
-  import tailf-common {
-    prefix tailf;
-  }
-  import tailf-ncs {
-    prefix ncs;
-  }
-
-  description
-    "Bla bla...";
-
-  revision 2016-01-01 {
-    description
-      "Initial revision.";
-  }
-
-  list device {
-    description "This is an RFS skeleton service";
-
-    key name;
-    leaf name {
-      tailf:info "Unique service id";
-      tailf:cli-allow-range;
-      type string;
+    import ietf-inet-types {
+        prefix inet;
+    }
+    import ietf-yang-types {
+        prefix yang;
+    }
+    import tailf-common {
+        prefix tailf;
+    }
+    import tailf-ncs {
+        prefix ncs;
     }
 
-    uses ncs:service-data;
-    ncs:servicepoint device-servicepoint;
-
-    // may replace this with other ways of refering to the devices.
-    leaf-list device {
-      type leafref {
-        path "/ncs:devices/ncs:device/ncs:name";
-      }
+    revision 2022-06-20 {
+        description
+          "Initial";
     }
 
-    // replace with your own stuff here
-    leaf dummy {
-      type inet:ipv4-address;
+    ncs:plan-outline device-plan {
+        ncs:component-type "ncs:self" {
+            ncs:state "ncs:init" {
+                ncs:create {
+                    ncs:nano-callback;
+                }
+            }
+            ncs:state "ncs:ready";
+        }
     }
-  }
+
+    ncs:service-behavior-tree device-servicepoint {
+        ncs:plan-outline-ref "device:device-plan";
+        ncs:selector {
+            ncs:create-component "'self'" {
+                ncs:component-type-ref "ncs:self";
+            }
+        }
+    }
+
+    list device {
+        uses ncs:nano-plan-data;
+        uses ncs:service-data;
+
+        ncs:servicepoint device-servicepoint;
+
+        key device;
+        leaf device {
+            mandatory true;
+            type leafref {
+                path "/ncs:devices/ncs:device/ncs:name";
+            }
+        }
+        leaf anycast-ipv4 {
+            type inet:ipv4-address-no-zone;
+        }
+        leaf anycast-ipv6 {
+            type inet:ipv6-address-no-zone;
+        }
+        leaf bgp-asn {
+            type inet:as-number;
+        }
+        leaf domain-name {
+            type inet:domain-name;
+        }
+        leaf env {
+            default "production";
+            type enumeration {
+                enum production;
+                enum lab;
+            }
+        }
+        leaf host-name {
+            type string {
+                length 1..63;
+            }
+        }
+        leaf isis-net {
+            type string {
+                pattern
+                  "[0-9A-Fa-f]{2}\\.([0-9A-Fa-f]{4}\\.){4,9}[0-9A-Fa-f]{2}";
+            }
+        }
+        leaf loopback-ipv4 {
+            type inet:ipv4-address-no-zone;
+        }
+        leaf loopback-ipv6 {
+            type inet:ipv6-address-no-zone;
+        }
+        leaf maintenance {
+            type empty;
+        }
+        leaf oob-ipv4-1 {
+            type string;
+        }
+        leaf oob-ipv4-2 {
+            type string;
+        }
+        leaf oob-ipv4-gateway {
+            type inet:ipv4-address-no-zone;
+        }
+        leaf oob-ipv4-vip {
+            type inet:ipv4-address-no-zone;
+        }
+        leaf oob-ipv6-1 {
+            type string;
+        }
+        leaf oob-ipv6-2 {
+            type string;
+        }
+        leaf oob-ipv6-gateway {
+            type inet:ipv6-address-no-zone;
+        }
+        leaf oob-ipv6-vip {
+            type inet:ipv6-address-no-zone;
+        }
+        leaf router-id {
+            type inet:ipv4-address-no-zone;
+        }
+        leaf snmp-contact {
+            type string {
+                length 1..64;
+            }
+        }
+        leaf snmp-location {
+            type string {
+                length 1..64;
+            }
+        }
+        list interfaces {
+            key "name";
+
+            leaf name {
+                type string {
+                    length 1..63;
+                }
+            }
+            leaf bundle {
+                type leafref {
+                    path "../name";
+                }
+            }
+        }
+    }
 }
